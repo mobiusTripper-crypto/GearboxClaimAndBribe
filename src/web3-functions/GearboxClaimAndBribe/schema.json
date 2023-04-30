@@ -4,7 +4,8 @@
   "memory": 128,
   "timeout": 30,
   "userArgs": {
-    "currency": "string",
-    "oracle": "string"
+    "claimAddress": "string",
+    "claimTokenAddress": "string",
+    "gaugeToBribeAddress": "string"
   }
 }
