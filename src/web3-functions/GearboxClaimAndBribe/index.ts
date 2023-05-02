@@ -9,7 +9,8 @@ import getGearboxData from "./getGearboxData";
 import getAuraProposalHash from "./getAuraProposalHash";
 
 import ClaimAndBribeABI from "../../abis/ClaimAndBribe.json";
-import { CLAIM_AND_BRIBED_CONTRACT, MINIMUM_REWARD } from "./constants";
+import { CLAIM_AND_BRIBE_CONTRACT, MINIMUM_REWARD } from "./constants";
+import getBalancerProposalHash from "./getBalancerProposalHash";
 
 Web3Function.onRun(async (context: Web3FunctionContext) => {
   const { userArgs, gelatoArgs, provider } = context;
@@ -30,18 +31,28 @@ Web3Function.onRun(async (context: Web3FunctionContext) => {
       };
     }
 
-    const balancerProposalHash = ethers.utils.solidityKeccak256(
-      ["address"],
-      [gaugeToBribeAddress]
+    // const balancerProposalHash = ethers.utils.solidityKeccak256(
+    //   ["address"],
+    //   [gaugeToBribeAddress]
+    // );
+    const balancerProposalHash = await getBalancerProposalHash(
+      gaugeToBribeAddress
     );
-
     const auraProposalHash = await getAuraProposalHash(gaugeToBribeAddress);
 
     const claimAndBribe = new Contract(
-      CLAIM_AND_BRIBED_CONTRACT,
+      CLAIM_AND_BRIBE_CONTRACT,
       ClaimAndBribeABI,
       provider
     );
+
+    console.log(`claimAndBrib function
+    index=${gearboxIndex}
+    totalAmount=${rewardAmount}
+    merkleProof=${gearboxMerkleProof}
+    auraProp=${auraProposalHash}
+    balProp=${balancerProposalHash}
+    tokenAddress=${claimTokenAddress}`);
 
     return {
       canExec: true,

@@ -1,5 +1,10 @@
 import ky from "ky";
-import { AURA_GAUGE_CHOICES_URL, HH_ARUA_API_URL } from "./constants";
+import { AURA_GAUGE_CHOICES_URL, HH_API_URL } from "./constants";
+
+type AuraGaugeChoiceType = {
+  address: string;
+  label: string;
+};
 
 type HiddenHandAuraProposalType = {
   proposal: number;
@@ -16,18 +21,29 @@ export default async function getAuraProposalHash(
   gaugeToBribeAddress: string
 ): Promise<string> {
   const auraGaugeChoices: any = await ky.get(AURA_GAUGE_CHOICES_URL).json();
-  const gaugeLabel = (
-    auraGaugeChoices as [{ address: string; label: string }]
-  ).find((xxx) => xxx.address === gaugeToBribeAddress)?.label;
-  //console.log("gaugeLabel", gaugeLabel);
 
-  const response: any = await ky.get(HH_ARUA_API_URL).json();
-  const hiddenHandTargets = response["data"] as [HiddenHandAuraProposalType];
+  const gaugeLabel = (auraGaugeChoices as [AuraGaugeChoiceType]).find(
+    (gaugeChoice) => gaugeChoice.address === gaugeToBribeAddress
+  )?.label;
+  if (!gaugeLabel) {
+    throw "bribe address not found in aura gauge choices";
+  }
 
-  const auraProposalHash = hiddenHandTargets.find(
-    (xxx) => xxx.title === gaugeLabel
-  )?.proposalHash;
+  const hiddenHandAuraResponse: any = await ky.get(`${HH_API_URL}aura`).json();
+  const hiddenHandAuraData = hiddenHandAuraResponse["data"] as [
+    HiddenHandAuraProposalType
+  ];
 
-  //TODO: throw when undefined
-  return auraProposalHash || "";
+  const auraProposals = hiddenHandAuraData.filter(
+    (proposal) => proposal.title === gaugeLabel
+  );
+  if (auraProposals.length === 0) {
+    throw "Error when getting aura proposal, proposal not found";
+  }
+  if (auraProposals.length !== 1) {
+    throw `Error when getting aura proposal, more than one proposal found for "${gaugeLabel}"`;
+  }
+  const auraProposalHash = auraProposals[0].proposalHash;
+
+  return auraProposalHash;
 }
