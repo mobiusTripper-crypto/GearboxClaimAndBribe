@@ -11,3 +11,5 @@ export const CLAIM_AND_BRIBED_CONTRACT =
 export const AURA_GAUGE_CHOICES_URL =
   "https://raw.githubusercontent.com/aurafinance/aura-contracts/main/tasks/snapshot/gauge_choices.json";
 export const HH_ARUA_API_URL = "https://api.hiddenhand.finance/proposal/aura";
+
+export const MINIMUM_REWARD = "1000000000000000000"; //1.0

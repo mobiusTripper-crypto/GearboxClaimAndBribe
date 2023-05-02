@@ -2,14 +2,14 @@ import {
   Web3Function,
   Web3FunctionContext,
 } from "@gelatonetwork/web3-functions-sdk";
-import { Contract, ethers } from "ethers";
+import { Contract, ethers, BigNumber } from "ethers";
 
 import verifyUserArgs from "./verifyUserArgs";
 import getGearboxData from "./getGearboxData";
 import getAuraProposalHash from "./getAuraProposalHash";
 
 import ClaimAndBribeABI from "../../abis/ClaimAndBribe.json";
-import { CLAIM_AND_BRIBED_CONTRACT } from "./constants";
+import { CLAIM_AND_BRIBED_CONTRACT, MINIMUM_REWARD } from "./constants";
 
 Web3Function.onRun(async (context: Web3FunctionContext) => {
   const { userArgs, gelatoArgs, provider } = context;
@@ -20,6 +20,15 @@ Web3Function.onRun(async (context: Web3FunctionContext) => {
 
     const { gearboxMerkleProof, rewardAmount, gearboxIndex } =
       await getGearboxData(multisigClaimAddress, provider);
+
+    if (BigNumber.from(rewardAmount).lt(MINIMUM_REWARD)) {
+      return {
+        canExec: false,
+        message: `Reward amount ${ethers.utils.formatEther(
+          rewardAmount
+        )} is less than minimum amount`,
+      };
+    }
 
     const balancerProposalHash = ethers.utils.solidityKeccak256(
       ["address"],
