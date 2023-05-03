@@ -26,3 +26,26 @@ cp .env.example .env
 PROVIDER_URL="" # your provider URL (e.g. https://eth-mainnet.alchemyapi.io/v2/YOUR_ALCHEMY_ID)
 PRIVATE_KEY="" # optional: only needed if you wish to create a task from the CLI instead of the UI
 ```
+
+## Test your web3 function
+
+### Calling your web3 function
+
+- Use `npx w3f test FILENAME` command to test your function
+
+- Options:
+
+  - `--show-logs` Show internal Web3 Function logs
+  - `--debug` Show Runtime debug messages
+  - `--chain-id=[number]` Specify the chainId to be used for your Web3 Function (default: `5` for Goerli)
+  - `--user-args=[key]:[value]` Set your Web3 Function user args
+
+- Example:<br/> `npx w3f test src/web3-functions/examples/oracle/index.ts --show-logs`
+
+- userArgs:
+
+```
+multisigClaimAddress: address of the wallet with the GEAR rewards
+claimTokenAddress: token address reward token (GEAR)
+gaugeToBribeAddress: address of the pool gauge to bribe (bb-g-USD)
+```
